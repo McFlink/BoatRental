@@ -4,6 +4,7 @@ using BoatRental.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BoatRental.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241010202331_UpdatePhoneNumberValidation")]
+    partial class UpdatePhoneNumberValidation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,121 +97,6 @@ namespace BoatRental.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("BoatRental.Models.Boat", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CurrentRenterId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("LockCombination")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PostalCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("PricePerDay")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CurrentRenterId");
-
-                    b.ToTable("Boats");
-                });
-
-            modelBuilder.Entity("BoatRental.Models.Payment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsPaid")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsRefunded")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("RentalId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId1")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RentalId");
-
-                    b.HasIndex("UserId1");
-
-                    b.ToTable("Payments");
-                });
-
-            modelBuilder.Entity("BoatRental.Models.Rental", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BoatId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("CancellationTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsCanceled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("RentalEndTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("RentalStartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId1")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BoatId");
-
-                    b.HasIndex("UserId1");
-
-                    b.ToTable("Rentals");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -344,49 +232,6 @@ namespace BoatRental.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("BoatRental.Models.Boat", b =>
-                {
-                    b.HasOne("BoatRental.Data.ApplicationUser", "CurrentRenter")
-                        .WithMany()
-                        .HasForeignKey("CurrentRenterId");
-
-                    b.Navigation("CurrentRenter");
-                });
-
-            modelBuilder.Entity("BoatRental.Models.Payment", b =>
-                {
-                    b.HasOne("BoatRental.Models.Rental", "Rental")
-                        .WithMany()
-                        .HasForeignKey("RentalId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BoatRental.Data.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId1");
-
-                    b.Navigation("Rental");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("BoatRental.Models.Rental", b =>
-                {
-                    b.HasOne("BoatRental.Models.Boat", "Boat")
-                        .WithMany()
-                        .HasForeignKey("BoatId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BoatRental.Data.ApplicationUser", "User")
-                        .WithMany("Rentals")
-                        .HasForeignKey("UserId1");
-
-                    b.Navigation("Boat");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -436,11 +281,6 @@ namespace BoatRental.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("BoatRental.Data.ApplicationUser", b =>
-                {
-                    b.Navigation("Rentals");
                 });
 #pragma warning restore 612, 618
         }
