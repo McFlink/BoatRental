@@ -1,13 +1,32 @@
-﻿@page "/auth"
+﻿@page "/rental-page"
 
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using BoatRental.Data
+
+@inject UserManager<ApplicationUser> userManager
+@inject IHttpContextAccessor _httpContextAccessor
 
 @attribute [Authorize]
 
 <PageTitle>Auth</PageTitle>
 
-<h1>You are authenticated</h1>
+<h1>Denna sida syns endast som inloggad</h1>
 
 <AuthorizeView>
-    Hello @context.User.Identity?.Name!
+    <p>Hello @userFirstName!</p> @* Här ska users förnamn stå istället *@
+    <p>Här ska båt- och uthyrningsdetaljer finnas.</p>
 </AuthorizeView>
+
+@code {
+    private string? userFirstName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await userManager.GetUserAsync(_httpContextAccessor.HttpContext.User); // Get user based on claims with HttpContextAccessor
+        if (user != null)
+        {
+            userFirstName = user.FirstName;
+        }
+    }
+}
