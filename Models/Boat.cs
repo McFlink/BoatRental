@@ -10,7 +10,7 @@ namespace BoatRental.Models
         public string? Location { get; set; } // Coordinates
         public string? PostalCode { get; set; }
         public int? LockCombination { get; set; }
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
         public bool IsAvailable { get; set; } = true;
 
         // Navigation
