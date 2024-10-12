@@ -4,6 +4,7 @@ using BoatRental.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BoatRental.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241012191224_ImageNameFieldInBoatModel")]
+    partial class ImageNameFieldInBoatModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -111,6 +114,9 @@ namespace BoatRental.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ImageName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
 
@@ -119,6 +125,10 @@ namespace BoatRental.Migrations
 
                     b.Property<int?>("LockCombination")
                         .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PostalCode")
                         .HasColumnType("nvarchar(max)");
@@ -139,36 +149,41 @@ namespace BoatRental.Migrations
                         new
                         {
                             Id = 1,
-                            Description = "Blå faran",
+                            Description = "En klassisk Smögen 45:a som är 4,5 meter och riktigt stabil!",
                             IsAvailable = true,
+                            Name = "Blå faran",
                             PricePerDay = 300m
                         },
                         new
                         {
                             Id = 2,
-                            Description = "Röda blixten",
+                            Description = "En Ockelbo på 4,2 meter, perfekt för 2 personer",
                             IsAvailable = true,
+                            Name = "Röda Blixten",
                             PricePerDay = 350m
                         },
                         new
                         {
                             Id = 3,
-                            Description = "Crecent 415",
+                            Description = "Crecent 415 är som namnet antyder 4,15m lång och en av det mest populära båtarna att fiska i. Lätt och stabil.",
                             IsAvailable = true,
+                            Name = "Crecent 415",
                             PricePerDay = 350m
                         },
                         new
                         {
                             Id = 4,
-                            Description = "Onda katten",
+                            Description = "Denna pärla är vår minsta modell i nuläget, som sträcker 3,7m och passar en till två personer.",
                             IsAvailable = true,
+                            Name = "Onda katten",
                             PricePerDay = 400m
                         },
                         new
                         {
                             Id = 5,
-                            Description = "Tandfen",
+                            Description = "Fin och lätt som en tandfe, den här båten ligger på 3,9 meter men är extremt stabil för sin längd",
                             IsAvailable = true,
+                            Name = "Tandfen",
                             PricePerDay = 250m
                         });
                 });

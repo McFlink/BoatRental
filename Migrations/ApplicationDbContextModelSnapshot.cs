@@ -4,7 +4,6 @@ using BoatRental.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -12,11 +11,9 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BoatRental.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241010205417_AddedNewEntities")]
-    partial class AddedNewEntities
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -114,24 +111,29 @@ namespace BoatRental.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ImageName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
 
                     b.Property<string>("Location")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("LockCombination")
                         .HasColumnType("int");
 
-                    b.Property<string>("PostalCode")
+                    b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PostalCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("PricePerDay")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -139,6 +141,48 @@ namespace BoatRental.Migrations
                     b.HasIndex("CurrentRenterId");
 
                     b.ToTable("Boats");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "En klassisk Smögen 45:a som är 4,5 meter och riktigt stabil!",
+                            IsAvailable = true,
+                            Name = "Blå faran",
+                            PricePerDay = 300m
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "En Ockelbo på 4,2 meter, perfekt för 2 personer",
+                            IsAvailable = true,
+                            Name = "Röda Blixten",
+                            PricePerDay = 350m
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Crecent 415 är som namnet antyder 4,15m lång och en av det mest populära båtarna att fiska i. Lätt och stabil.",
+                            IsAvailable = true,
+                            Name = "Crecent 415",
+                            PricePerDay = 350m
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "Denna pärla är vår minsta modell i nuläget, som sträcker 3,7m och passar en till två personer.",
+                            IsAvailable = true,
+                            Name = "Onda katten",
+                            PricePerDay = 400m
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "Fin och lätt som en tandfe, den här båten ligger på 3,9 meter men är extremt stabil för sin längd",
+                            IsAvailable = true,
+                            Name = "Tandfen",
+                            PricePerDay = 250m
+                        });
                 });
 
             modelBuilder.Entity("BoatRental.Models.Payment", b =>
