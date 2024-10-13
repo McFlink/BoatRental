@@ -26,7 +26,7 @@ Flera funktioner:
         @foreach (var boat in boats)
         {
             <div class="col-md-3 mb-4 d-flex justify-content-center">
-                <NavLink href=@($"/rental-page/{boat.Id}")>
+                <NavLink class="text-decoration-none" href=@($"/rental-page/{boat.Id}")>
                     <div class="card d-flex flex-column h-100" style="width: 18rem;">
 
                         <img src="/Images/@boat.ImageName" class="card-img-top" style="height: 200px; object-fit: cover" />
@@ -41,8 +41,8 @@ Flera funktioner:
                             {
                                 <span class="text-danger">Bokad idag</span>
                             }
-                            <p class="card-text mt-auto">@boat.Description</p>
-                            <p class="text-info mt-auto">@boat.Location</p>
+                            <p class="card-text text-dark mt-auto">@boat.Description</p>
+                            <p class="text-info mt-auto"><i class="bi bi-geo-alt-fill"></i>@boat.Location</p>
                         </div>
                     </div>
                 </NavLink>
