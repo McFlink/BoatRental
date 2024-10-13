@@ -1,11 +1,14 @@
-﻿@page "/rental-page"
+﻿@page "/rental-page/{Id:int}"
 
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
 @using BoatRental.Data
 
 @inject UserManager<ApplicationUser> userManager
 @inject IHttpContextAccessor _httpContextAccessor
+@inject IBoatService BoatService
+@inject ApplicationDbContext database
 
 @attribute [Authorize]
 
@@ -16,9 +19,22 @@
 <AuthorizeView>
     <p>Hello @userFirstName!</p> @* Här ska users förnamn stå istället *@
     <p>Här ska båt- och uthyrningsdetaljer finnas.</p>
+    @if (boat != null)
+    {
+        <p>Testar så att page id-routing funkar: @boat.Name</p>
+    }
+    else
+    {
+        <p>Boat error</p>
+    }
 </AuthorizeView>
 
 @code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Boat boat { get; set; }
+
     private string? userFirstName;
 
     protected override async Task OnInitializedAsync()
@@ -27,6 +43,12 @@
         if (user != null)
         {
             userFirstName = user.FirstName;
+        }
+
+        boat = await database.Boats.FirstOrDefaultAsync(b => b.Id == Id);
+        if (boat == null)
+        {
+            Console.WriteLine($"Ingen båt med Id {Id} hittades");
         }
     }
 }

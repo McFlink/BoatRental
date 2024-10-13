@@ -26,24 +26,26 @@ Flera funktioner:
         @foreach (var boat in boats)
         {
             <div class="col-md-3 mb-4 d-flex justify-content-center">
-                <div class="card d-flex flex-column h-100" style="width: 18rem;">
+                <NavLink href=@($"/rental-page/{boat.Id}")>
+                    <div class="card d-flex flex-column h-100" style="width: 18rem;">
 
-                    <img src="/Images/@boat.ImageName" class="card-img-top" style="height: 200px; object-fit: cover" />
-                    
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">@boat.Name</h5>
-                        @if (boat.IsAvailable)
-                        {
-                            <span class="text-success">Tillgänglig</span>
-                        }
-                        else
-                        {
-                            <span class="text-danger">Bokad idag</span>
-                        }
-                        <p class="card-text mt-auto">@boat.Description</p>
-                        <p class="text-info mt-auto">@boat.Location</p>
+                        <img src="/Images/@boat.ImageName" class="card-img-top" style="height: 200px; object-fit: cover" />
+
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">@boat.Name</h5>
+                            @if (boat.IsAvailable)
+                            {
+                                <span class="text-success">Tillgänglig</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger">Bokad idag</span>
+                            }
+                            <p class="card-text mt-auto">@boat.Description</p>
+                            <p class="text-info mt-auto">@boat.Location</p>
+                        </div>
                     </div>
-                </div>
+                </NavLink>
             </div>
         }
     </div>
