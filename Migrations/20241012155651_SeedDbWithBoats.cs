@@ -12,24 +12,16 @@ namespace BoatRental.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<int>(
-                name: "UserId",
-                table: "Boats",
-                type: "int",
-                nullable: true,
-                oldClrType: typeof(int),
-                oldType: "int");
-
             migrationBuilder.InsertData(
                 table: "Boats",
-                columns: new[] { "Id", "CurrentRenterId", "Description", "IsAvailable", "Location", "LockCombination", "PostalCode", "PricePerDay", "UserId" },
+                columns: new[] { "Id", "CurrentRenterId", "Description", "IsAvailable", "Location", "LockCombination", "Name", "PostalCode", "PricePerDay", "UserId" },
                 values: new object[,]
                 {
-                    { 1, null, "Blå faran", true, null, null, null, 300m, null },
-                    { 2, null, "Röda blixten", true, null, null, null, 350m, null },
-                    { 3, null, "Crecent 415", true, null, null, null, 350m, null },
-                    { 4, null, "Onda katten", true, null, null, null, 400m, null },
-                    { 5, null, "Tandfen", true, null, null, null, 250m, null }
+                    { 1, null, "En klassisk Smögen 45:a som är 4,5 meter och riktigt stabil!", true, null, null, "Blå faran", null, 300m, null },
+                    { 2, null, "En Ockelbo på 4,2 meter, perfekt för 2 personer", true, null, null, "Röda Blixten", null, 350m, null },
+                    { 3, null, "Crecent 415 är som namnet antyder 4,15m lång och en av det mest populära båtarna att fiska i. Lätt och stabil.", true, null, null, "Crecent 415", null, 350m, null },
+                    { 4, null, "Denna pärla är vår minsta modell i nuläget, som sträcker 3,7m och passar en till två personer.", true, null, null, "Onda katten", null, 400m, null },
+                    { 5, null, "Fin och lätt som en tandfe, den här båten ligger på 3,9 meter men är extremt stabil för sin längd", true, null, null, "Tandfen", null, 250m, null }
                 });
         }
 
@@ -60,16 +52,6 @@ namespace BoatRental.Migrations
                 table: "Boats",
                 keyColumn: "Id",
                 keyValue: 5);
-
-            migrationBuilder.AlterColumn<int>(
-                name: "UserId",
-                table: "Boats",
-                type: "int",
-                nullable: false,
-                defaultValue: 0,
-                oldClrType: typeof(int),
-                oldType: "int",
-                oldNullable: true);
         }
     }
 }

@@ -20,7 +20,8 @@ namespace BoatRental.Data
             new Boat
             {
                 Id = 1,
-                Description = "Blå faran",
+                Name = "Blå faran",
+                Description = "En klassisk Smögen 45:a som är 4,5 meter och riktigt stabil!",
                 PricePerDay = 300,
                 IsAvailable = true,
                 UserId = null, // Inte uthyrd
@@ -30,7 +31,8 @@ namespace BoatRental.Data
             new Boat
             {
                 Id = 2,
-                Description = "Röda blixten",
+                Name = "Röda Blixten",
+                Description = "En Ockelbo på 4,2 meter, perfekt för 2 personer",
                 PricePerDay = 350,
                 IsAvailable = true,
                 UserId = null,
@@ -40,7 +42,8 @@ namespace BoatRental.Data
             new Boat
             {
                 Id = 3,
-                Description = "Crecent 415",
+                Name = "Crecent 415",
+                Description = "Crecent 415 är som namnet antyder 4,15m lång och en av det mest populära båtarna att fiska i. Lätt och stabil.",
                 PricePerDay = 350,
                 IsAvailable = true,
                 UserId = null,
@@ -50,7 +53,8 @@ namespace BoatRental.Data
             new Boat
             {
                 Id = 4,
-                Description = "Onda katten",
+                Name = "Onda katten",
+                Description = "Denna pärla är vår minsta modell i nuläget, som sträcker 3,7m och passar en till två personer.",
                 PricePerDay = 400,
                 IsAvailable = true,
                 UserId = null,
@@ -60,7 +64,8 @@ namespace BoatRental.Data
             new Boat
             {
                 Id = 5,
-                Description = "Tandfen",
+                Name = "Tandfen",
+                Description = "Fin och lätt som en tandfe, den här båten ligger på 3,9 meter men är extremt stabil för sin längd",
                 PricePerDay = 250,
                 IsAvailable = true,
                 UserId = null,
