@@ -89,6 +89,11 @@
         var user = await GetUser();
         if (user == null)
         {
+            /* Om användaren loggar ut och bokningssidan laddas om, navigera till inloggningssidan.
+               Utan denna navigering skulle sidan försöka visa bokningsinformationen med en null användare,
+               vilket skulle resultera i ett felaktigt eller ofullständigt UI. */
+
+            NavManager.NavigateTo("/Account/Login");
             return; // Avsluta om ej hittas
         }
 
