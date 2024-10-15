@@ -1,3 +1,4 @@
+using Blazorise;
 using BoatRental.Components;
 using BoatRental.Components.Account;
 using BoatRental.Data;
@@ -6,6 +7,8 @@ using BoatRental.Service;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Blazorise.AntDesign;
+using Blazorise.Icons.FontAwesome;
 
 namespace BoatRental
 {
@@ -18,6 +21,14 @@ namespace BoatRental
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
+
+            builder.Services
+                .AddBlazorise(options =>
+                {
+                    options.Immediate = true;
+                })
+                .AddAntDesignProviders()
+                .AddFontAwesomeIcons();
 
             builder.Services.AddCascadingAuthenticationState();
             builder.Services.AddScoped<IdentityUserAccessor>();

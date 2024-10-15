@@ -1,4 +1,4 @@
-﻿@page "/rental-page/{Id:int}"
+﻿@page "/boat-info/{Id:int}"
 
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
@@ -8,16 +8,17 @@
 @inject UserManager<ApplicationUser> userManager
 @inject IHttpContextAccessor _httpContextAccessor
 @inject IBoatService BoatService
-@inject ApplicationDbContext database
+@inject NavigationManager NavigationManager
 
 @attribute [Authorize]
 
-<PageTitle>Auth</PageTitle>
+<PageTitle>@(boat != null ? boat.Name : "Laddar...")</PageTitle>
+
 
 <h1>Denna sida syns endast som inloggad</h1>
 
 <AuthorizeView>
-    <p>Hello @userFirstName!</p> @* Här ska users förnamn stå istället *@
+    <p>Hello @userFirstName!</p>
     <p>Här ska båt- och uthyrningsdetaljer finnas.</p>
     @if (boat != null)
     {
@@ -26,7 +27,14 @@
     }
     else
     {
-        <p>Boat error</p>
+        <p>Kunde inte ladda information om båt.</p>
+    }
+
+    @if (boat != null)
+    {
+        <div class="mt-3 booking-button">
+            <NavLink href=@($"/book-boat/{boat.Id}")>Boka båt</NavLink>
+        </div>
     }
 </AuthorizeView>
 
@@ -46,7 +54,7 @@
             userFirstName = user.FirstName;
         }
 
-        boat = await database.Boats.FirstOrDefaultAsync(b => b.Id == Id);
+        boat = await BoatService.GetBoatById(Id);
         if (boat == null)
         {
             Console.WriteLine($"Ingen båt med Id {Id} hittades");

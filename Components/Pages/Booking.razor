@@ -1,0 +1,223 @@
+﻿@page "/book-boat/{Id:int}"
+
+@using Microsoft.AspNetCore.Identity
+@using BoatRental.Data
+@using Microsoft.EntityFrameworkCore
+@using Blazorise
+
+@inject IBoatService BoatService
+@inject UserManager<ApplicationUser> UserManager
+@inject IHttpContextAccessor _httpContextAccessor
+@inject ApplicationDbContext Context
+@inject NavigationManager NavManager
+
+@rendermode InteractiveServer
+
+<div class="row">
+    <div class="col-md-4">
+        <h3>Bokning för @(boat != null ? boat.Name : "Laddar...")</h3>
+        @if (boat != null)
+        {
+            <img src="/Images/@boat.ImageName" style="height: 200px; object-fit: cover" alt="image of choosen boat" />
+        }
+        <EditForm id="booking-form" Model="rental" OnValidSubmit="HandleValidSubmit">
+            <div class="form-group mb-3 mt-3 col-md-7">
+                <label for="rentalStartDate">Välj datum för bokning</label>
+                <InputDate id="rentalStartDate" @bind-Value="rental.RentalStartTime" class="form-control" />
+                <ValidationMessage For="@(() => rental.RentalStartTime)" />
+            </div>
+            <div class="form-group mb-3 col-md-7">
+                <label for="rentalEndDate">Välj slutdatum för bokning. Är bokningen endast en dag, ange samma datum.</label>
+                <InputDate id="rentalEndDate" @bind-Value="rental.RentalEndTime" class="form-control" />
+                <ValidationMessage For="@(() => rental.RentalEndTime)" />
+            </div>
+            <button type="submit" class="btn btn-primary fw-bold" disabled="@IsDateBooked()">
+                Boka datum <span class="text-dark fw-bold">@rental.RentalStartTime.ToString("yyyy-MM-dd") - @rental.RentalEndTime.ToString("yyyy-MM-dd")</span>
+            </button>
+        </EditForm>
+    </div>
+
+    <div class="col-md-3 booked-dates">
+        <h3>Bokade datum för denna båt:</h3> @* Kolla upp Blazorise *@
+
+        @if (bookedDates != null && bookedDates.Any())
+        {
+            <div class="bg-warning col-md-8 rounded-2">
+                @foreach (var booking in bookedDates)
+                {
+                    <ul>
+                        <li class="p-1">@booking.RentalStartTime.ToString("yyyy-MM-dd") - @booking.RentalEndTime.ToString("yyyy-MM-dd")</li>
+                    </ul>
+                }
+            </div>
+        }
+        else
+        {
+            <p>Inga datum bokade</p>
+        }
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success mt-3 col-md-3">
+        @successMessage
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger mt-3 col-md-3">
+        @errorMessage
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Boat boat;
+    private Rental rental = new Rental();
+
+    private List<Rental> bookedDates = new List<Rental>();
+
+    private string successMessage = string.Empty;
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await GetUser();
+        if (user == null)
+        {
+            return;
+        }
+
+        boat = await GetBoat();
+        if (boat == null)
+        {
+            return;
+        }
+
+        bookedDates = await GetBookedDates();
+        if (bookedDates == null || !bookedDates.Any())
+        {
+            return;
+        }
+
+        rental.BoatId = Id;
+        rental.UserId = user.Id;
+        rental.RentalStartTime = DateTime.Today;
+        rental.RentalEndTime = DateTime.Today.AddDays(1);
+    }
+
+    public async Task HandleValidSubmit()
+    {
+        // Validera start- och slutdatum
+        var validationError = ValidateDates();
+        if (validationError != null)
+        {
+            errorMessage = validationError;
+            successMessage = null;
+            return;
+        }
+
+        rental.RentalStartTime = rental.RentalStartTime.Date;
+        rental.RentalEndTime = rental.RentalEndTime.Date;
+
+        if (IsDateBooked())
+        {
+            errorMessage = "Datum ej tillgängligt";
+            successMessage = null;
+            return;
+        }
+
+        rental.IsCanceled = false;
+
+        Context.Rentals.Add(rental);
+        await Context.SaveChangesAsync();
+
+        // Kontrollera om bokningen redan finns i listan
+        if (!bookedDates.Any(b => b.RentalStartTime == rental.RentalStartTime && b.RentalEndTime == rental.RentalEndTime))
+        {
+            // Om den inte finns, lägg till den nya bokningen
+            bookedDates.Add(rental);
+        }
+
+        successMessage = "Bokning genomförd!";
+        errorMessage = null;
+
+        StateHasChanged();
+
+        // NavManager.NavigateTo("/");
+    }
+
+    public bool IsDateBooked()
+    {
+        return bookedDates.Any(r =>
+            (r.RentalStartTime <= rental.RentalStartTime && rental.RentalStartTime <= r.RentalEndTime) ||
+            (r.RentalStartTime <= rental.RentalEndTime && rental.RentalEndTime <= r.RentalEndTime) ||
+            (r.RentalStartTime >= rental.RentalStartTime && r.RentalEndTime <= rental.RentalEndTime)
+        );
+    }
+
+    private string ValidateDates()
+    {
+        if (rental.RentalStartTime < DateTime.Today)
+        {
+            return "Startdatum kan inte vara bakåt i tiden...";
+        }
+
+        if (rental.RentalEndTime < rental.RentalStartTime)
+        {
+            return "Slutdatum kan inte vara före startdatum...";
+        }
+
+        return null;
+    }
+
+    private async Task<ApplicationUser> GetUser()
+    {
+        var user = await UserManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+        if (user == null)
+        {
+            Console.WriteLine("Kunde inte hitta användaren.");
+            errorMessage = "Användaren kunde inte hittas";
+        }
+        return user;
+    }
+
+    private async Task<Boat> GetBoat()
+    {
+        var boat = await BoatService.GetBoatById(Id);
+        if (boat == null)
+        {
+            Console.WriteLine($"Ingen båt med Id {Id} hittades");
+            errorMessage = "Fel vid hämtning av båt";
+        }
+        return boat;
+    }
+
+    private async Task<List<Rental>> GetBookedDates()
+    {
+        var bookedDates = await Context.Rentals
+       .Where(r => r.BoatId == Id)
+       .OrderBy(r => r.RentalStartTime)
+       .ToListAsync();
+        if (bookedDates == null)
+        {
+            Console.WriteLine($"Inga datum för båt med Id {Id} hittades");
+            errorMessage = "Fel vid laddning av datum";
+        }
+        return bookedDates;
+    }
+}
+
+    @* För högre prestanda (färre databas-anrop när man hanterar samma data (båt) genom flera sidor:
+    State Management:
+    Fördelar:
+    - Färre db-anrop
+    - Snabbare navigering mellansidorna
+
+    Nackdelar:
+    - Data lagras temporärt => omladdning av sida = state försvinner
+    *@

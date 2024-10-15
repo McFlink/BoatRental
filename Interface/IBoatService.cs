@@ -5,5 +5,6 @@ namespace BoatRental.Interface
     public interface IBoatService
     {
         Task<List<Boat>> GetBoatsAsync();
+        Task<Boat> GetBoatById(int id);
     }
 }
