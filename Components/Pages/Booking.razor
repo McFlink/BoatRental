@@ -53,7 +53,7 @@
         }
         else
         {
-            <p>Inga datum bokade</p>
+            <p class="fw-bold">Inga datum bokade</p>
         }
     </div>
 </div>
@@ -76,20 +76,20 @@
     [Parameter]
     public int Id { get; set; }
 
-    private Boat boat;
-    private Rental rental = new Rental();
+    private Boat? boat;                     // Båt som ska hyras
+    private Rental rental = new Rental();   // Ny bokning skapas
 
-    private List<Rental> bookedDates = new List<Rental>();
+    private List<Rental> bookedDates = new List<Rental>(); // Lista med bokade tider
 
-    private string successMessage = string.Empty;
-    private string errorMessage = string.Empty;
+    private string? successMessage = string.Empty;
+    private string? errorMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         var user = await GetUser();
         if (user == null)
         {
-            return;
+            return; // Avsluta om ej hittas
         }
 
         boat = await GetBoat();
@@ -98,54 +98,55 @@
             return;
         }
 
+        //Hämta redan bokade datum för den här båten
         bookedDates = await GetBookedDates();
-        if (bookedDates == null || !bookedDates.Any())
+        if (!bookedDates.Any())
         {
             return;
         }
 
-        rental.BoatId = Id;
-        rental.UserId = user.Id;
-        rental.RentalStartTime = DateTime.Today;
-        rental.RentalEndTime = DateTime.Today.AddDays(1);
+        rental.BoatId = Id;                                 // Koppla bokning till aktuell båt
+        rental.UserId = user.Id;                            // Koppla bokning till användaren
+        rental.RentalStartTime = DateTime.Today;            // Default startdatum
+        rental.RentalEndTime = DateTime.Today.AddDays(1);   // Default slutdatum (sätt DateTime.Today också?)
     }
 
     public async Task HandleValidSubmit()
     {
         // Validera start- och slutdatum
-        var validationError = ValidateDates();
-        if (validationError != null)
+        if (!ValidateBookingDates(rental.RentalStartTime, rental.RentalEndTime))
         {
-            errorMessage = validationError;
-            successMessage = null;
-            return;
+            return; // Om datum ej valid, avsluta
         }
 
+        // Sätt datum till endast datum (ej tid)
         rental.RentalStartTime = rental.RentalStartTime.Date;
         rental.RentalEndTime = rental.RentalEndTime.Date;
 
+        // Kontrollera om datum är bokade
         if (IsDateBooked())
         {
             errorMessage = "Datum ej tillgängligt";
             successMessage = null;
-            return;
+            return; // Avsluta om redan bokade
         }
 
-        rental.IsCanceled = false;
+        rental.IsCanceled = false; // Om bokning är avbruten, annars false
 
+        // Lägg till bokning i db
         Context.Rentals.Add(rental);
         await Context.SaveChangesAsync();
 
-        // Kontrollera om bokningen redan finns i listan
+        // Kontrollera om bokningen redan finns i listan. Om den inte finns, lägg till den nya bokningen
         if (!bookedDates.Any(b => b.RentalStartTime == rental.RentalStartTime && b.RentalEndTime == rental.RentalEndTime))
         {
-            // Om den inte finns, lägg till den nya bokningen
             bookedDates.Add(rental);
         }
 
         successMessage = "Bokning genomförd!";
         errorMessage = null;
 
+        // Uppdatera UI efter bokning
         StateHasChanged();
 
         // NavManager.NavigateTo("/");
@@ -160,19 +161,23 @@
         );
     }
 
-    private string ValidateDates()
+    private bool ValidateBookingDates(DateTime startTime, DateTime endTime)
     {
-        if (rental.RentalStartTime < DateTime.Today)
+        if (startTime < DateTime.Today)
         {
-            return "Startdatum kan inte vara bakåt i tiden...";
+            errorMessage = "Startdatum kan inte vara bakåt i tiden...";
+            successMessage = null;
+            return false;
         }
 
-        if (rental.RentalEndTime < rental.RentalStartTime)
+        if (endTime < startTime)
         {
-            return "Slutdatum kan inte vara före startdatum...";
+            errorMessage = "Slutdatum kan inte vara före startdatum...";
+            successMessage = null;
+            return false;
         }
 
-        return null;
+        return true;
     }
 
     private async Task<ApplicationUser> GetUser()
@@ -203,10 +208,9 @@
        .Where(r => r.BoatId == Id)
        .OrderBy(r => r.RentalStartTime)
        .ToListAsync();
-        if (bookedDates == null)
+        if (!bookedDates.Any())
         {
             Console.WriteLine($"Inga datum för båt med Id {Id} hittades");
-            errorMessage = "Fel vid laddning av datum";
         }
         return bookedDates;
     }
