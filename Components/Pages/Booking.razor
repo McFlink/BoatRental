@@ -1,6 +1,7 @@
 ﻿@page "/book-boat/{Id:int}"
 
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authorization
 @using BoatRental.Data
 @using Microsoft.EntityFrameworkCore
 @using Blazorise
@@ -11,66 +12,74 @@
 @inject ApplicationDbContext Context
 @inject NavigationManager NavManager
 
+@attribute [Authorize]
+
 @rendermode InteractiveServer
 
-<div class="row">
-    <div class="col-md-4">
-        <h3>Bokning för @(boat != null ? boat.Name : "Laddar...")</h3>
-        @if (boat != null)
-        {
-            <img src="/Images/@boat.ImageName" style="height: 200px; object-fit: cover" alt="image of choosen boat" />
-        }
-        <EditForm id="booking-form" Model="rental" OnValidSubmit="HandleValidSubmit">
-            <div class="form-group mb-3 mt-3 col-md-7">
-                <label for="rentalStartDate">Välj datum för bokning</label>
-                <InputDate id="rentalStartDate" @bind-Value="rental.RentalStartTime" class="form-control" />
-                <ValidationMessage For="@(() => rental.RentalStartTime)" />
-            </div>
-            <div class="form-group mb-3 col-md-7">
-                <label for="rentalEndDate">Välj slutdatum för bokning. Är bokningen endast en dag, ange samma datum.</label>
-                <InputDate id="rentalEndDate" @bind-Value="rental.RentalEndTime" class="form-control" />
-                <ValidationMessage For="@(() => rental.RentalEndTime)" />
-            </div>
-            <button type="submit" class="btn btn-primary fw-bold" disabled="@IsDateBooked()">
-                Boka datum <span class="text-dark fw-bold">@rental.RentalStartTime.ToString("yyyy-MM-dd") - @rental.RentalEndTime.ToString("yyyy-MM-dd")</span>
-            </button>
-        </EditForm>
-    </div>
-
-    <div class="col-md-3 booked-dates">
-        <h3>Bokade datum för denna båt:</h3> @* Kolla upp Blazorise *@
-
-        @if (bookedDates != null && bookedDates.Any())
-        {
-            <div class="bg-warning col-md-8 rounded-2">
-                @foreach (var booking in bookedDates)
+<AuthorizeView>
+    <ChildContent Context="authContext">
+        @* AuthorizedView och EditForm använder samma context, därför måste denna döpas om *@
+        <div class="row">
+            <div class="col-md-4">
+                <h3>Bokning för @(boat != null ? boat.Name : "Laddar...")</h3>
+                @if (boat != null)
                 {
-                    <ul>
-                        <li class="p-1">@booking.RentalStartTime.ToString("yyyy-MM-dd") - @booking.RentalEndTime.ToString("yyyy-MM-dd")</li>
-                    </ul>
+                    <img src="/Images/@boat.ImageName" style="height: 200px; object-fit: cover" alt="image of choosen boat" />
+                }
+                <EditForm id="booking-form" Model="rental" OnValidSubmit="HandleValidSubmit">
+                    <div class="form-group mb-3 mt-3 col-md-7">
+                        <label for="rentalStartDate">Välj datum för bokning</label>
+                        <InputDate id="rentalStartDate" @bind-Value="rental.RentalStartTime" class="form-control" />
+                        <ValidationMessage For="@(() => rental.RentalStartTime)" />
+                    </div>
+                    <div class="form-group mb-3 col-md-7">
+                        <label for="rentalEndDate">Välj slutdatum för bokning. Är bokningen endast en dag, ange samma datum.</label>
+                        <InputDate id="rentalEndDate" @bind-Value="rental.RentalEndTime" class="form-control" />
+                        <ValidationMessage For="@(() => rental.RentalEndTime)" />
+                    </div>
+                    <button type="submit" class="btn btn-primary fw-bold" disabled="@IsDateBooked()">
+                        Boka datum <span class="text-dark fw-bold">@rental.RentalStartTime.ToString("yyyy-MM-dd") - @rental.RentalEndTime.ToString("yyyy-MM-dd")</span>
+                    </button>
+                </EditForm>
+            </div>
+
+            <div class="col-md-3 booked-dates">
+                <h3>Bokade datum för denna båt:</h3> @* Kolla upp Blazorise *@
+
+                @if (bookedDates != null && bookedDates.Any())
+                {
+                    <div class="bg-warning col-md-8 rounded-2">
+                        @foreach (var booking in bookedDates)
+                        {
+                            <ul>
+                                <li class="p-1">@booking.RentalStartTime.ToString("yyyy-MM-dd") - @booking.RentalEndTime.ToString("yyyy-MM-dd")</li>
+                            </ul>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="fw-bold">Inga datum bokade</p>
                 }
             </div>
-        }
-        else
+        </div>
+
+        @if (!string.IsNullOrEmpty(successMessage))
         {
-            <p class="fw-bold">Inga datum bokade</p>
+            <div class="alert alert-success mt-3 col-md-3">
+                @successMessage
+            </div>
         }
-    </div>
-</div>
 
-@if (!string.IsNullOrEmpty(successMessage))
-{
-    <div class="alert alert-success mt-3 col-md-3">
-        @successMessage
-    </div>
-}
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger mt-3 col-md-3">
+                @errorMessage
+            </div>
+        }
+    </ChildContent>
+</AuthorizeView>
 
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <div class="alert alert-danger mt-3 col-md-3">
-        @errorMessage
-    </div>
-}
 
 @code {
     [Parameter]
@@ -89,11 +98,6 @@
         var user = await GetUser();
         if (user == null)
         {
-            /* Om användaren loggar ut och bokningssidan laddas om, navigera till inloggningssidan.
-               Utan denna navigering skulle sidan försöka visa bokningsinformationen med en null användare,
-               vilket skulle resultera i ett felaktigt eller ofullständigt UI. */
-
-            NavManager.NavigateTo("/Account/Login");
             return; // Avsluta om ej hittas
         }
 
