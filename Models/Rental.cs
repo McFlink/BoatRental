@@ -9,7 +9,7 @@ namespace BoatRental.Models
         public DateTime RentalEndTime { get; set; }
         public bool IsCanceled { get; set; }
         public DateTime? CancellationTime { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public int BoatId { get; set; }
 
         // Navigation

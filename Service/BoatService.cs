@@ -16,8 +16,12 @@ namespace BoatRental.Service
 
         public async Task<List<Boat>> GetBoatsAsync()
         {
-            var boats = await context.Boats.ToListAsync();
-            return boats;
+            return await context.Boats.ToListAsync();
+        }
+
+        public async Task<Boat> GetBoatById(int id)
+        {
+            return await context.Boats.SingleOrDefaultAsync(b => b.Id == id);
         }
     }
 }
